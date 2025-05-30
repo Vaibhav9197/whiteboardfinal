@@ -1,16 +1,16 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3030/canvas"; // Adjust the port if needed
+const API_BASE_URL = "https://whiteboardfinal-1.onrender.com/canvas"; // Your Render backend URL
 
 export const updateCanvas = async (canvasId, elements) => {
   const token = localStorage.getItem('token');
-  
+
   if (!token) {
     throw new Error('Authentication token not found');
   }
 
   try {
-    const response = await fetch(`http://localhost:3030/canvas/update/${canvasId}`, {
+    const response = await fetch(`${API_BASE_URL}/update/${canvasId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -19,7 +19,6 @@ export const updateCanvas = async (canvasId, elements) => {
       body: JSON.stringify({ elements })
     });
 
-    // First check if response is JSON
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       console.error('Non-JSON response:', await response.text());

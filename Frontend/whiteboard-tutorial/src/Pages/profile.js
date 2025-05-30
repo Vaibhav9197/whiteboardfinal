@@ -17,6 +17,9 @@ function Profile() {
   // New state for creating a canvas
   const [newCanvasName, setNewCanvasName] = useState('');
 
+  // Replace all localhost URLs with your deployed backend URL here:
+  const API_BASE_URL = 'https://whiteboardfinal-1.onrender.com';
+
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
@@ -27,7 +30,7 @@ function Profile() {
       }
       try {
         // Fetch profile data
-        const profileResponse = await fetch('http://localhost:3030/users/profile', {
+        const profileResponse = await fetch(`${API_BASE_URL}/users/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -40,7 +43,7 @@ function Profile() {
         }
 
         // Fetch canvases
-        const canvasResponse = await fetch('http://localhost:3030/canvas', {
+        const canvasResponse = await fetch(`${API_BASE_URL}/canvas`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -91,7 +94,6 @@ function Profile() {
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(shareEmail)) {
       setShareStatus('Please enter a valid email address');
@@ -100,36 +102,35 @@ function Profile() {
 
     try {
       const token = localStorage.getItem('token');
-      console.log('Sharing canvas:', { canvasId: sharingCanvasId, email: shareEmail }); // Debug log
+      console.log('Sharing canvas:', { canvasId: sharingCanvasId, email: shareEmail });
 
-      const response = await fetch(`http://localhost:3030/canvas/share/${sharingCanvasId}`, {
+      const response = await fetch(`${API_BASE_URL}/canvas/share/${sharingCanvasId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          sharedWith: shareEmail, // Changed from shared_with to match backend expectation
+          sharedWith: shareEmail,
         }),
       });
 
       const data = await response.json();
-      console.log('Share response:', data); // Debug log
+      console.log('Share response:', data);
 
       if (response.ok) {
         setShareStatus('Canvas shared successfully!');
         setTimeout(() => setShowShareModal(false), 2000);
       } else {
-        // More detailed error message
         const errorMessage = data.error || data.message || 'Failed to share canvas';
         setShareStatus(`Error: ${errorMessage}`);
-        console.error('Share error details:', data); // Debug log
+        console.error('Share error details:', data);
       }
     } catch (err) {
       console.error('Share error:', err);
       setShareStatus('Failed to share canvas. Please try again.');
     }
-};
+  };
 
   const closeShareModal = () => {
     setShowShareModal(false);
@@ -138,7 +139,6 @@ function Profile() {
     setShareStatus('');
   };
 
-  // Function to handle canvas creation
   const handleCreateCanvas = async () => {
     if (!newCanvasName.trim()) {
       alert('Please enter a canvas name');
@@ -153,7 +153,7 @@ function Profile() {
     }
 
     try {
-      const response = await fetch('http://localhost:3030/canvas', {
+      const response = await fetch(`${API_BASE_URL}/canvas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -165,8 +165,8 @@ function Profile() {
       const data = await response.json();
 
       if (response.ok) {
-        setCanvases([...canvases, data]); // Add the new canvas to the list
-        setNewCanvasName(''); // Clear the input field
+        setCanvases([...canvases, data]);
+        setNewCanvasName('');
       } else {
         alert(`Error creating canvas: ${data.message || 'Failed to create canvas'}`);
       }
@@ -176,7 +176,6 @@ function Profile() {
     }
   };
 
-  // Add after other handler functions
   const handleDeleteCanvas = async (canvasId) => {
     if (!window.confirm('Are you sure you want to delete this canvas?')) {
       return;
@@ -190,9 +189,9 @@ function Profile() {
         return;
       }
 
-      console.log('Attempting to delete canvas:', canvasId); // Debug log
+      console.log('Attempting to delete canvas:', canvasId);
 
-      const response = await fetch(`http://localhost:3030/canvas/erase/${canvasId}`, {
+      const response = await fetch(`${API_BASE_URL}/canvas/erase/${canvasId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -200,10 +199,8 @@ function Profile() {
         },
       });
 
-      // Log the raw response
       console.log('Delete response status:', response.status);
-       
-      // Try to get response text first to debug any non-JSON responses
+
       const rawResponse = await response.text();
       console.log('Raw response:', rawResponse);
 
@@ -216,7 +213,6 @@ function Profile() {
       }
 
       if (response.ok) {
-        // Remove the deleted canvas from the state
         setCanvases(prevCanvases => prevCanvases.filter(canvas => canvas._id !== canvasId));
         alert('Canvas deleted successfully');
       } else {
@@ -226,7 +222,7 @@ function Profile() {
       console.error('Delete error:', err);
       alert(`Failed to delete canvas: ${err.message}`);
     }
-};
+  };
 
   return (
     <div className="profile-container">
@@ -238,7 +234,6 @@ function Profile() {
           </div>
         </div>
 
-        {/* Create Canvas Section */}
         <div className="create-canvas-section">
           <h3>Create New Canvas</h3>
           <div className="create-canvas-form">
@@ -287,7 +282,6 @@ function Profile() {
         </div>
       </div>
 
-      {/* Share Modal */}
       {showShareModal && (
         <div className="modal-overlay">
           <div className="share-modal">

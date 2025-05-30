@@ -10,6 +10,9 @@ function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
 
+  // Change this to your deployed backend URL
+  const API_BASE_URL = "https://whiteboardfinal-1.onrender.com/users";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -17,7 +20,7 @@ function Login() {
     const endpoint = isRegistering ? 'register' : 'login';
   
     try {
-      const response = await fetch(`http://localhost:3030/users/${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

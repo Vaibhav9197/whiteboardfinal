@@ -2,8 +2,10 @@ import io from 'socket.io-client';
 
 let socket;
 
+const SOCKET_SERVER_URL = 'https://whiteboardfinal-1.onrender.com';
+
 export const initSocket = () => {
-  socket = io('http://localhost:3030');
+  socket = io(SOCKET_SERVER_URL);
   return socket;
 };
 

@@ -15,24 +15,25 @@ function Canvas() {
   const [canvasData, setCanvasData] = useState(null);
   const [error, setError] = useState('');
   const [socket, setSocket] = useState(null);
-  const [history, setHistory] = useState([]); // Add history state
+  const [history, setHistory] = useState([]);
+
+  // Replace localhost with your deployed backend URL here:
+  const SOCKET_SERVER_URL = 'https://whiteboardfinal-1.onrender.com';
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:3030');
+    const newSocket = io(SOCKET_SERVER_URL);
     setSocket(newSocket);
 
     return () => newSocket.close();
   }, []);
 
-  // Join canvas room when socket and canvas ID are available
   useEffect(() => {
     if (socket && id) {
       socket.emit('join-canvas', id);
     }
   }, [socket, id]);
 
-  // Listen for canvas updates from other users
   useEffect(() => {
     if (socket) {
       const handleCanvasUpdate = (updatedElements) => {
@@ -68,22 +69,18 @@ function Canvas() {
     if (!updatedElements) return;
     
     try {
-      // Add current elements to history before updating
       setHistory(prev => [...prev, canvasData.elements]);
 
-      // Update local state immediately
       setCanvasData(prevData => ({
         ...prevData,
         elements: updatedElements,
       }));
 
-      // Emit canvas update to other users
       socket?.emit('canvas-update', {
         canvasId: id,
         elements: updatedElements
       });
 
-      // Debounce the API call to save changes
       const timeoutId = setTimeout(async () => {
         try {
           const data = await updateCanvas(id, updatedElements);
@@ -91,7 +88,7 @@ function Canvas() {
         } catch (error) {
           console.error('Failed to save canvas:', error);
         }
-      }, 1000); // Increased debounce time
+      }, 1000);
 
       return () => clearTimeout(timeoutId);
     } catch (err) {
@@ -100,7 +97,6 @@ function Canvas() {
     }
   }, [id, socket, canvasData]);
 
-  // Add undo function
   const handleUndo = useCallback(() => {
     if (history.length === 0) return;
 
@@ -112,7 +108,6 @@ function Canvas() {
       elements: previousElements
     }));
 
-    // Emit the undo to other users
     socket?.emit('canvas-update', {
       canvasId: id,
       elements: previousElements

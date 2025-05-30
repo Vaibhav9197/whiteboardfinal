@@ -7,17 +7,21 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 
-// Allow all origins during dev
 app.use(cors({
   origin: "*",
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "OPTIONS"],
   credentials: true
 }));
 
+// Handle preflight requests for all routes
+app.options('*', cors());
+
+app.use(express.json());
+
 const io = new Server(server, {
   cors: {
-    origin: "*", // allow all for now
-    methods: ["GET", "POST"],
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS"],
     credentials: true
   }
 });
